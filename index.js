@@ -1,20 +1,14 @@
+import cors from "cors";
 import dotenv from 'dotenv';
 import express from 'express';
 import connectDB from './config/config.js';
 import userRouter from './route/userRoute.js';
-import cors from "cors";
 import alertRoute from './route/alertRoute.js';
 
 dotenv.config();
 
 const app = express();
-app.use(cors({
-    origin: 'https://relynrelax.com',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-    credentials: true,
-}));
+app.use(cors());
 
 const port = 5001;
 
