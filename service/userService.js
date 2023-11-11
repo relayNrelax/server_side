@@ -9,10 +9,10 @@ export default class UserService {
     }
 
     saveUser = async (data) =>{
-        
         const { email, password, confirmPassword, userName, phoneNumber, alternateNumber, zip } = data;
 
         try {
+
             
             const existing_user = await UserModel.findOne({email: email})
 

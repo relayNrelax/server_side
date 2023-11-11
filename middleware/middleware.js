@@ -4,7 +4,6 @@ import UserModel from "../models/userModel.js";
 const VerifyToken = async (req, res, next) => {
   try {
     let token;
-
     const { authorization } = req.headers;
     if (authorization && authorization.startsWith("Bearer")) {
 
