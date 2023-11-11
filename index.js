@@ -8,7 +8,13 @@ import alertRoute from './route/alertRoute.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'https://relynrelax.com',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+}));
 
 const port = 5001;
 
