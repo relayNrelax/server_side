@@ -1,8 +1,11 @@
-import sg from '@sendgrid/mail';
+import axios from "axios";
 import corn from "node-cron";
+import sg from '@sendgrid/mail';
 import schedule from "node-schedule";
 import connectDB from '../config/config.js';
 import AlertModel from '../models/alertModel.js';
+import { response } from "express";
+import ElasticEmail from "@elasticemail/elasticemail-client";
 
 sg.setApiKey(process.env.SG_API_KEY);
 export default class SendEmailService {
@@ -143,5 +146,134 @@ export default class SendEmailService {
             return {status: false, message: error.message}
         }
     }
+
+    resetLink1 = async (email) => {
+        try {
+            let defaultClient = ElasticEmail.ApiClient.instance;
+            let apiKey = defaultClient.authentications['apikey'];
+            apiKey.apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
+
+            let api = new ElasticEmail.EmailsApi()
+            let email_data = ElasticEmail.EmailMessageData.constructFromObject(
+                {
+                    Recipients: [
+                        new ElasticEmail.EmailRecipient(email)
+                    ],
+                    Content: {
+                        Body: [
+                            ElasticEmail.BodyPart.constructFromObject({
+                                ContentType: "HTML",
+                                Content: "RelyNrelax Password reset Link"
+                            })
+                        ],
+                        Subject: 'RelyNrelax Password reset Link',
+                        From: 'bishal@letscalendar.com'
+                    }
+                }
+            )
+
+            var callback = (err, data, response) => {
+                if(err){
+                    return {
+                        status: false,
+                        message: err
+                    }
+                }else{
+                    return {
+                        status: true,
+                        message: 'Password reset link sent successfully'
+                    }
+                }
+            }
+
+            api.emailsPost(email_data, callback);
+
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
+
+    resetLink = (email, id) => {
+        return new Promise((resolve, reject) => {
+            try {
+                let defaultClient = ElasticEmail.ApiClient.instance;
+                let apiKey = defaultClient.authentications['apikey'];
+                apiKey.apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
+                
+                const link = `https://relynrelax.com/new/password/${id}`
+                console.log(link)
+
+                let api = new ElasticEmail.EmailsApi()
+                let email_data = ElasticEmail.EmailMessageData.constructFromObject(
+                    {
+                        Recipients: [
+                            new ElasticEmail.EmailRecipient(email)
+                        ],
+                        Content: {
+                            Body: [
+                                ElasticEmail.BodyPart.constructFromObject({
+                                    ContentType: "HTML",
+                                    Content: `<p>Please click on the below link which will take you to password</p><br><br>
+                                            <p><a href="${link}">https://relynrelax.com/new/password</a></p>`
+
+                                })
+                            ],
+                            Subject: 'RelyNrelax Password reset Link',
+                            From: 'bishal@letscalendar.com'
+                        }
+                    }
+                )
+    
+                var callback = (err, data, response) => {
+                    if(err){
+                        reject({ status: false, message: err });
+                    } else {
+                        resolve({ status: true, message: 'Password reset link sent successfully' });
+                    }
+                }
+    
+                api.emailsPost(email_data, callback);
+
+            } catch (error) {
+                reject({ status: false, message: error.message });
+            }
+        });
+    }
+    
+
+    // resetLink = async (email) => {
+    //     try {
+    //         const apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
+    //         const apiUrl = 'https://api.elasticemail.com/v4/emails/transactional';
+
+    //         const payload = {
+    //             from: 'bishal@letscalendar.com',
+    //             to: email,
+    //             subject: 'relyNrelax password reset email',
+    //             body: `<p>Please Click on this link and it will take you relyNrelax.com reset password page.</p>
+    //             <p><a href="https://relynrelax.com/dashboard"></a></p>`
+    //         }
+    //         axios.post(apiUrl, payload, {
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-ElasticEmail-ApiKey': apiKey,
+    //             }
+    //         })
+    //         .then(response => {
+    //             return {
+    //                 status: true,
+    //                 message: response.data
+    //             }
+    //         })
+    //         .catch(error => {
+    //             return {
+    //                 status: false,
+    //                 message: error.response.data
+    //             }
+    //         })
+    //     } catch (error) {
+    //         return {status: false, message: error.message}
+    //     }
+    // }
 
 }
