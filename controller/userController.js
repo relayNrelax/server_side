@@ -34,10 +34,8 @@ export default class UserController {
 
     updateUserEmail = async (req, res) => {
         try {
-            
             const updatedEmail = await this.UserService.updateUserEmail(req.body, req.user)
             res.send(updatedEmail);
-
         } catch (error) {
             res.send(error.message);
         }
@@ -47,6 +45,26 @@ export default class UserController {
         try {
             const updatedPhoneNumber = await this.UserService.updatePhoneNumber(req.body, req.user)
             res.send(updatedPhoneNumber);
+        } catch (error) {
+            res.send(error.message);
+        }
+    }
+
+    forgetPassword = async (req, res) => {
+        try {
+            const is_success = await this.UserService.resetPassword(req.body, req.user);
+            res.send(is_success);
+        } catch (error) {
+            res.send(error.message);
+        }
+    }
+
+    setPassword = async (req, res) => {
+        try {
+            const {id} = req.params;
+            const {pass, cnf_pass} = req.body;
+            const data = await this.UserService.setNewPass(pass, cnf_pass, id);
+            res.send(data);
         } catch (error) {
             res.send(error.message);
         }

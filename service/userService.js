@@ -10,11 +10,9 @@ export default class UserService {
 
     saveUser = async (data) =>{
         const { email, password, confirmPassword, userName, phoneNumber, alternateNumber, zip } = data;
-
         try {
-
             
-            const existing_user = await UserModel.findOne({email: email})
+            const existing_user = await UserModel.findOne({email: email});
 
             if(existing_user) throw new Error(`User with email: ${email} already exists`);
             if(password !== confirmPassword) throw new Error(`Password and confirmPassword are not the same`);
@@ -133,5 +131,52 @@ export default class UserService {
         }
     }
 
+    resetPassword = async (data, user) => {
+        try {
+            if(data.email.length === 0) return {status: false, message: "Please enter your email address"}
+            const user_data = await UserModel.findOne({email: data.email});
+            if(!user_data) return {status: false, message: "User not found please enter valid email address"}
+            if(user_data.email === data.email){
+                const send_reset_link = await this.SendEmailService.resetLink(data.email, user_data._id)
+                if(send_reset_link.status === true){
+                    return {
+                        status: true, message: `Password reset link sent successfully to ${data.email} `
+                    }
+                }else{
+                    return {status: false, message : `Fail to send password reset link Error: ${send_reset_link.message}`}
+                }
+            }else{
+                return {status: false, message: `No user found form this email address ${data.email}`}
+            }
+        } catch (error) {
+            return {status: false, message: error.message};
+        }
+    }
+
+    setNewPass = async (pass, cnf_pass, id) => {
+        try {
+
+            if(pass === cnf_pass){
+                const user_data = await UserModel.findById({_id: id});
+                if(user_data._id == id){
+                    const salt = await bcrypt.genSalt(10)
+                    const hashPassword = await bcrypt.hash(pass, salt);
+                    const update = await UserModel.findByIdAndUpdate(user_data._id, {$set: {password: hashPassword}});
+                    if(update){
+                        return {status: true, message: 'Password updated successfully'}
+                    }else{
+                        return {status: false, message: 'Failed to update password'}
+                    }
+                }else{
+                    return {status: false, message: 'No user found from this id'}
+                }
+            }else{
+                return {status: false, message: 'Password and Confirm Password not match'}
+            }
+
+        } catch (error) {
+            return {status: false, message: error.message};
+        }
+    }
     
 }
