@@ -1,9 +1,11 @@
 import AlertService from "../service/alertService.js";
+import SendSMSService from "../service/sendSMSService.js";
 
 export default class AlertController {
 
     constructor() {
         this.AlertService = new AlertService();
+        this.SendSMSService = new SendSMSService();
     }
 
     createAlert = async (req, res) => {
@@ -42,10 +44,11 @@ export default class AlertController {
         }
     }
 
-    sendAlert = async (req, res) => {
+    sendSMSAlert = async (req, res) => {
         try {
-            const sendAlert = await this.AlertService.sendAlert(req.body, req.user)
-            res.send({status: sendAlert.status, data: sendAlert});
+            const sendAlert = await this.SendSMSService.configureSMS(req.user)
+            return sendAlert
+            // res.send({status: sendAlert.status, data: sendAlert});
         } catch (error) {
             res.send({status: false, error: error.message});
         }

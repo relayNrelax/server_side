@@ -13,7 +13,7 @@ export default class AlertService {
                 a_status: 'Pending',
                 a_v_number: data.vehicleNumber,
                 a_u_id: user._id,
-                a_end_date: data.alertDate                ,
+                a_end_date: data.alertDate,
                 a_created_by: user.name
             });
 
