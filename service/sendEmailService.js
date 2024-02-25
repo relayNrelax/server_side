@@ -46,6 +46,7 @@ export default class SendEmailService {
     sendReminder = async (data) => {
         try {
            const alert = await AlertModel.findById(data.userData)
+           const alert_id = alert._id;
            const user = await UserModel.findById(alert.a_u_id);
            if(!user) return {status: false, message: 'No user available for this id'};
            let defaultClient = ElasticEmail.ApiClient.instance;
@@ -86,16 +87,37 @@ export default class SendEmailService {
             )
 
             return new Promise((resolve, reject) => {
-                var callback = (err, data, response) => {
+                var callback = async (err, data, response) => {
                     if (err) {
-                        reject({ status: false, message: err });
+                        try {
+                            const update = await AlertModel.findOneAndUpdate(
+                                { _id: alert_id },
+                                { $set: { a_status: 'Fail' } },
+                                { returnOriginal: false }
+                            );
+                            console.log(update);
+                            resolve({ status: false, message: err });
+                        } catch (updateError) {
+                            reject({ status: false, message: updateError });
+                        }
                     } else {
-                        resolve({ status: true, message: 'Alert Sent Successfully' });
+                        try {
+                            const update = await AlertModel.findOneAndUpdate(
+                                { _id: alert_id },
+                                { $set: { a_status: 'Sent' } },
+                                { returnOriginal: false }
+                            );
+                            console.log(update)
+                            resolve({ status: true, message: 'Alert Sent Successfully' });
+                        } catch (updateError) {
+                            reject({ status: false, message: updateError });
+                        }
                     }
                 };
-    
+            
                 api.emailsPost(email_data, callback);
             });
+            
 
         } catch (error) {
             return {status: false, message: error.message}
