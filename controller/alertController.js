@@ -1,9 +1,10 @@
 import AlertService from "../service/alertService.js";
-
+import SendEmailService from "../service/sendEmailService.js";
 export default class AlertController {
 
     constructor() {
         this.AlertService = new AlertService();
+        this.SendEmailService = new SendEmailService();
     }
 
     createAlert = async (req, res) => {
@@ -44,8 +45,8 @@ export default class AlertController {
 
     sendAlert = async (req, res) => {
         try {
-            const sendAlert = await this.AlertService.sendAlert(req.body, req.user)
-            res.send({status: sendAlert.status, data: sendAlert});
+            const sendAlert = await this.SendEmailService.sendReminder(req.body)
+            res.send(sendAlert);
         } catch (error) {
             res.send({status: false, error: error.message});
         }

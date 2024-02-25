@@ -3,6 +3,7 @@ import corn from "node-cron";
 import sg from '@sendgrid/mail';
 import schedule from "node-schedule";
 import connectDB from '../config/config.js';
+import UserModel from "../models/userModel.js";
 import AlertModel from '../models/alertModel.js';
 import { response } from "express";
 import ElasticEmail from "@elasticemail/elasticemail-client";
@@ -42,106 +43,60 @@ export default class SendEmailService {
         }
     }
 
-    sendAlert = async (data, user) => {
+    sendReminder = async (data) => {
         try {
-            const userId = user._id
-            if(!userId) return {status: false, message: "User not found"}
-            const alertData = await AlertModel.find({a_u_id:userId});
-
-            const endDate = [];
-
-            alertData.forEach(element => {
-                const alertObj = {
-                    startDate : element.a_start_date,
-                    endDate : element.a_end_date,
-                    vehicleNumber : element.a_v_number,
-                    alertType : element.a_type,
-                    userId : element.a_u_id
-                }
-
-                endDate.push(alertObj);
-            });
-
-            const sendReminder = await this.sendEmailReminder(endDate, user);
-
-            return {data: sendReminder, user: user}
-        } catch (error) {
-            return {status: false, message: error.message}
-        }
-    }
-
-    sendEmailReminder = async (data, user) => {
-        try {
-            const endDates = [];
-            data.forEach(element => {
-                return endDates.push(element.endDate);
-            });
-
-            for (const endDate of endDates) {
-                const reminderDate = new Date(endDate);
-                reminderDate.setDate(reminderDate.getDate() - 1);
-
-                if(reminderDate > new Date()) {
-                    const msg = {
-                        to: 'bishaldeb282@gmail.com',
-                        from: 'bishaldeb282@gmail.com',
-                        subject: "Alert",
-                        html: `<h1>Alert</h1>`,
-                    };
-
-                    await new Promise((resolve, reject) => {
-                        const job = schedule.scheduleJob(reminderDate, () => {
-                            sgMail
-                                .send(msg)
-                                .then(() => {
-                                    resolve({ status: true, message: "Email sent successfully" });
-                                })
-                                .catch((err) => {
-                                    reject({ status: false, message: err.message });
-                                });
-                        });
-                    });
-
-                    return {status: true, message: "Email sent successfully"}
-                }
-
-            }
-
-            return { status: false, message: "No reminders scheduled" };
-
-        } catch (error) {
-            return {status: false, message: error.message}
-        }
-    }
-
-    sendEmailReminders = async () => {
-        try {
-            const currentDate = new Date();
-
-            const alertToRemind = await AlertModel.find({
-                a_end_date: {
-                    $gte: currentDate,
-                    $lt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000),
-                },
-                a_u_id: user._id,
-            })
-
-            for (const alert of alertToRemind) {
-                const sendReminder = await this.sendEmailReminder(
-                    [
-                        {
-                            startDate: alert.a_start_date,
-                            endDate: alert.a_end_date,
-                            vehicleNumber: alert.a_v_number,
-                            alertType: alert.a_type,
-                            userId: alert.a_u_id,
-                        }
+           const alert = await AlertModel.findById(data.userData)
+           const user = await UserModel.findById(alert.a_u_id);
+           if(!user) return {status: false, message: 'No user available for this id'};
+           let defaultClient = ElasticEmail.ApiClient.instance;
+           let apiKey = defaultClient.authentications['apikey'];
+           apiKey.apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
+    
+           let api = new ElasticEmail.EmailsApi()
+            let email_data = ElasticEmail.EmailMessageData.constructFromObject(
+                {
+                    Recipients: [
+                        new ElasticEmail.EmailRecipient(user.email)
                     ],
-                    user
-                );
+                    Content: {
+                        Body: [
+                            ElasticEmail.BodyPart.constructFromObject({
+                                ContentType: "HTML",
+                                Content: `Dear ${user.name},<br><br>
 
-                return {status: true, message: `Email sent successfully with ${alert._id}`, sendReminder};
-            }
+                                We hope this message finds you well. We wanted to bring to your attention that your ${alert.a_type} is scheduled to expire soon.<br><br>
+                                
+                                Expiration Date: ${alert.a_end_date}<br><br>
+                                
+                                To ensure uninterrupted access to ${alert.a_type}, we recommend taking prompt action to renew your ${alert.a_type} before the expiration date.<br><br>
+                                
+                                If you have any questions or need assistance with the renewal process, please don't hesitate to reach out to us. We're here to help.<br><br>
+                                
+                                Thank you for your attention to this matter.<br><br>
+                                
+                                Best regards,<br>
+                                RelyNRelax<br>
+                                `
+                            })
+                        ],
+                        Subject: `RelyNrelax ${alert.a_type} reminder email. `,
+                        From: 'bishal@letscalendar.com'
+                    }
+                }
+            )
+
+            return new Promise((resolve, reject) => {
+                var callback = (err, data, response) => {
+                    if (err) {
+                        reject({ status: false, message: err });
+                    } else {
+                        resolve({ status: true, message: 'Alert Sent Successfully' });
+                    }
+                };
+    
+                api.emailsPost(email_data, callback);
+            });
+
         } catch (error) {
             return {status: false, message: error.message}
         }
@@ -239,41 +194,7 @@ export default class SendEmailService {
             }
         });
     }
-    
 
-    // resetLink = async (email) => {
-    //     try {
-    //         const apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
-    //         const apiUrl = 'https://api.elasticemail.com/v4/emails/transactional';
 
-    //         const payload = {
-    //             from: 'bishal@letscalendar.com',
-    //             to: email,
-    //             subject: 'relyNrelax password reset email',
-    //             body: `<p>Please Click on this link and it will take you relyNrelax.com reset password page.</p>
-    //             <p><a href="https://relynrelax.com/dashboard"></a></p>`
-    //         }
-    //         axios.post(apiUrl, payload, {
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-ElasticEmail-ApiKey': apiKey,
-    //             }
-    //         })
-    //         .then(response => {
-    //             return {
-    //                 status: true,
-    //                 message: response.data
-    //             }
-    //         })
-    //         .catch(error => {
-    //             return {
-    //                 status: false,
-    //                 message: error.response.data
-    //             }
-    //         })
-    //     } catch (error) {
-    //         return {status: false, message: error.message}
-    //     }
-    // }
 
 }
