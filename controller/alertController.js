@@ -1,5 +1,8 @@
+import AlertModel from "../models/alertModel.js";
 import AlertService from "../service/alertService.js";
 import SendEmailService from "../service/sendEmailService.js";
+import tz from 'moment-timezone';
+import moment from "moment";
 export default class AlertController {
 
     constructor() {
@@ -47,6 +50,29 @@ export default class AlertController {
         try {
             const sendAlert = await this.SendEmailService.sendReminder(req.body)
             res.send(sendAlert);
+        } catch (error) {
+            res.send({status: false, error: error.message});
+        }
+    }
+
+    cronAlert = async (req, res) => {
+        try {            
+            const currentDate = moment().startOf('day').set({ hour: 18, minute: 30, second: 0, millisecond: 0 }).toISOString();
+            const nextDate = moment().add(1, 'days').startOf('day').set({ hour: 23, minute: 60, second: 0, millisecond: 0 }).toISOString();
+
+            let alertData = await AlertModel.find({
+                a_end_date: nextDate
+            });
+            const promise = alertData.map(async (alert) => {
+                try {
+                    return await this.SendEmailService.cronReminder(alert._id);
+                } catch (error) {
+                    console.error(error.message);
+                    return {status: false, message: error.message}
+                }
+            });
+            const result = await Promise.all(promise);
+            res.send(result);
         } catch (error) {
             res.send({status: false, error: error.message});
         }

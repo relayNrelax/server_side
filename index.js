@@ -9,8 +9,8 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-    origin: 'https://relynrelax.com',
-    // origin: 'http://localhost:3000',
+    // origin: 'https://relynrelax.com',
+    origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,

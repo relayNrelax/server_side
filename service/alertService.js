@@ -6,7 +6,7 @@ export default class AlertService {
     async setAlert(data, user){
 
         try {
-
+            console.log(data);
             const newAlert = new AlertModel({
                 a_name: data.alertName,
                 a_type: data.alertType,

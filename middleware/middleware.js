@@ -6,19 +6,22 @@ const VerifyToken = async (req, res, next) => {
     let token;
     const { authorization } = req.headers;
     if (authorization && authorization.startsWith("Bearer")) {
-
       token = authorization.split(" ")[1];
-      const {userId} = jwt.verify(token, process.env.SECRET_KEY);
-      req.user = await UserModel.findById(userId);
-      
-      next();
+      jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+        if (err && err.name === "TokenExpiredError") {
+          res.status(401).send({ status: "fail", message: "Token has expired" });
+        } else if (err) {
+          res.status(400).send({ status: "fail", message: "Token is not valid" });
+        } else {
+          req.user = await UserModel.findById(decoded.userId);
+          next();
+        }
+      });
     } else {
-      res
-        .status(400)
-        .send({ status: "fail", message: "Token is not authenticated" });
+      res.status(400).send({ status: "fail", message: "Token is not provided" });
     }
   } catch (error) {
-    res.status(400).send({ status: "fail", message: "Some thing went wrong!" });
+    res.status(400).send({ status: "fail", message: error.message });
   }
 };
 

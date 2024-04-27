@@ -37,7 +37,7 @@ export default class UserService {
             const text = `<p><strong>SignUp successfully on relayNrelax.com</strong></p>`
 
             const sendEmail = await this.SendEmailService.sendEmail(saved_user.email, subject, text);
-            const token = jwt.sign({userId: saved_user._id}, process.env.SECRET_KEY, {expiresIn: '10d'})
+            const token = jwt.sign({userId: saved_user._id}, process.env.SECRET_KEY, {expiresIn: '30d'})
 
             return {status: true, data: saved_user, token: token, email: sendEmail}
 
