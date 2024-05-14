@@ -1,4 +1,6 @@
 import AlertModel from "../models/alertModel.js";
+import unirest from 'unirest';
+import axios from "axios";
 import AlertService from "../service/alertService.js";
 import SendEmailService from "../service/sendEmailService.js";
 import tz from 'moment-timezone';
@@ -73,6 +75,39 @@ export default class AlertController {
             });
             const result = await Promise.all(promise);
             res.send(result);
+        } catch (error) {
+            res.send({status: false, error: error.message});
+        }
+    }
+
+    smsAlert = async (alertId) => {
+        try {
+            const number = '8403993822';
+            const message = 'RelyNrelax test OTP is 7890';
+            const url = 'https://www.fast2sms.com/dev/bulkV2';
+            const API_KEY = 'XB6tL0F9CurIV4Ggcm1EonMTy3xwj8Yqf5KUelidAQZk7Rh2aD0Vf8JXyalnuPTxSpkheo1WNK36Emzi';
+
+            const smsData = {
+                message: message,
+                language: 'english',
+                route: 'q',
+                numbers: number
+            }
+
+            axios
+                .post(url, smsData, {
+                    headers: {
+                        Authorization : API_KEY,
+                    }
+                })
+                .then(response => {
+                    console.log(response);
+                })
+                .catch(err => {{
+                    console.log(err);
+                }});
+
+
         } catch (error) {
             res.send({status: false, error: error.message});
         }

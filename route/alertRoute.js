@@ -18,5 +18,7 @@ alertRoute.patch('/updateAlert', alertController.updateAlert);
 alertRoute.post('/send/alert', alertController.sendAlert);
 alertRoute.post('/cron/alert', alertController.cronAlert);
 
+alertRoute.post('/sms/alert', alertController.smsAlert);
+
 
 export default alertRoute;
