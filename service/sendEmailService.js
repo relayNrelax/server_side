@@ -217,6 +217,82 @@ export default class SendEmailService {
         });
     }
 
+    cronReminder = async (id) => {
+        try {
+           const alert = await AlertModel.findById(id)
+           const alert_id = alert._id;
+           const user = await UserModel.findById(alert.a_u_id);
+           if(!user) return {status: false, message: 'No user available for this id'};
+           let defaultClient = ElasticEmail.ApiClient.instance;
+           let apiKey = defaultClient.authentications['apikey'];
+           apiKey.apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
+           let api = new ElasticEmail.EmailsApi()
+            let email_data = ElasticEmail.EmailMessageData.constructFromObject(
+                {
+                    Recipients: [
+                        new ElasticEmail.EmailRecipient(user.email)
+                    ],
+                    Content: {
+                        Body: [
+                            ElasticEmail.BodyPart.constructFromObject({
+                                ContentType: "HTML",
+                                Content: `Dear ${user.name},<br><br>
 
+                                We hope this message finds you well. We wanted to bring to your attention that your ${alert.a_type} is scheduled to expire soon.<br><br>
+                                
+                                Expiration Date: ${alert.a_end_date}<br><br>
+                                
+                                To ensure uninterrupted access to ${alert.a_type}, we recommend taking prompt action to renew your ${alert.a_type} before the expiration date.<br><br>
+                                
+                                If you have any questions or need assistance with the renewal process, please don't hesitate to reach out to us. We're here to help.<br><br>
+                                
+                                Thank you for your attention to this matter.<br><br>
+                                
+                                Best regards,<br>
+                                RelyNRelax<br>
+                                `
+                            })
+                        ],
+                        Subject: `RelyNrelax ${alert.a_type} reminder email. `,
+                        From: 'bishal@letscalendar.com'
+                    }
+                }
+            )
+
+            return new Promise((resolve, reject) => {
+                var callback = async (err, data, response) => {
+                    if (err) {
+                        try {
+                            const update = await AlertModel.findOneAndUpdate(
+                                { _id: alert_id },
+                                { $set: { a_status: 'Fail' } },
+                                { returnOriginal: false }
+                            );
+                            resolve({ status: false, message: err });
+                        } catch (updateError) {
+                            reject({ status: false, message: updateError });
+                        }
+                    } else {
+                        try {
+                            const update = await AlertModel.findOneAndUpdate(
+                                { _id: alert_id },
+                                { $set: { a_status: 'Sent' } },
+                                { returnOriginal: false }
+                            );
+                            resolve({ status: true, message: 'Alert Sent Successfully' });
+                        } catch (updateError) {
+                            reject({ status: false, message: updateError });
+                        }
+                    }
+                };
+            
+                api.emailsPost(email_data, callback);
+            });
+            
+
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
 
 }
