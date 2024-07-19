@@ -34,7 +34,7 @@ export default class AdminService {
 
     alerts = async() => {
         try {
-            const alerts = await AlertModel.find();
+            const alerts = await AlertModel.find().sort({ createdAt: -1 });
             if(!alerts) throw new Error ("Alert not found");
             return alerts
         } catch (error) {

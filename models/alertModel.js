@@ -8,7 +8,7 @@ const alertSchema = mongoose.Schema({
     a_u_id: {type: 'string', required: 'user id is required'},
     a_end_date: {type:'string', required: 'alert end date is required'},
     a_created_by: {type: 'string', required: 'alert user is required'},
-})
+},{ timestamps: true })
 
 const AlertModel = mongoose.model('Alert', alertSchema);
 export default AlertModel;
