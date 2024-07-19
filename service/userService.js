@@ -9,7 +9,7 @@ export default class UserService {
     }
 
     saveUser = async (data) =>{
-        const { email, password, confirmPassword, userName, phoneNumber, alternateNumber, zip } = data;
+        const { email, password, confirmPassword, userName, phoneNumber, alternateNumber, v_number } = data;
         try {
             
             const existing_user = await UserModel.findOne({email: email});
@@ -26,7 +26,7 @@ export default class UserService {
                 phone_number: phoneNumber,
                 alternate_number: alternateNumber,
                 email: email,
-                zip: zip,
+                v_number: v_number,
                 password: hashPassword
             })
 
@@ -123,7 +123,7 @@ export default class UserService {
 
     getAllUser = async () =>{
         try {
-            const users = await UserModel.find();
+            const users = await UserModel.find().sort({ createdAt: -1 });
             if(!users) throw new Error ("User not found");
             return users
         } catch (error) {
