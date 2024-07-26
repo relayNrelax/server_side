@@ -51,4 +51,15 @@ export default class AlertController {
             res.send({status: false, error: error.message});
         }
     }
+
+    getDetails = async (req, res) => {
+        try {
+            const details = await this.AlertService.details(req.user)
+            res.send(details);
+        } catch (error) {
+            res.send({status: false, error: error.message});
+        }
+    }
+
+   
 }

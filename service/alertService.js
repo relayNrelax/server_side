@@ -1,4 +1,5 @@
 import AlertModel from "../models/alertModel.js";
+import UserModel from "../models/userModel.js";
 import SendEmail from "../service/sendEmailService.js";
 
 export default class AlertService {
@@ -59,6 +60,20 @@ export default class AlertService {
             const sendAlert = await sendEmail.sendAlert(data, user);
             return sendAlert
 
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
+
+    async details(user){
+        try {
+            const u_details = await UserModel.find({_id: user._id})
+            const totalAlertCount = await AlertModel.countDocuments({ a_u_id: user._id });
+            const sentAlertCount = await AlertModel.countDocuments({ 
+                a_u_id: user._id, 
+                a_status: 'Sent' 
+            });
+            return {status: true, u_data: u_details, sCount: sentAlertCount, a_count: totalAlertCount};
         } catch (error) {
             return {status: false, message: error.message}
         }

@@ -11,6 +11,9 @@ alertRoute.post('/create/alert', alertController.createAlert);
 alertRoute.use('/get/alert', VerifyToken)
 alertRoute.get('/get/alert', alertController.getAllAlerts);
 
+alertRoute.use('/details', VerifyToken)
+alertRoute.get('/details', alertController.getDetails);
+
 alertRoute.use('/updateAlert', VerifyToken)
 alertRoute.patch('/updateAlert', alertController.updateAlert);
 
