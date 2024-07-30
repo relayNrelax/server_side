@@ -5,9 +5,7 @@ import SendEmail from "../service/sendEmailService.js";
 export default class AlertService {
    
     async setAlert(data, user){
-
         try {
-
             const newAlert = new AlertModel({
                 a_name: data.alertName,
                 a_type: data.alertType,
@@ -74,6 +72,15 @@ export default class AlertService {
                 a_status: 'Sent' 
             });
             return {status: true, u_data: u_details, sCount: sentAlertCount, a_count: totalAlertCount};
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
+
+    async deleteAlerts(id) {
+        try {
+            const deleteResult = await AlertModel.deleteOne({ _id: id });
+            return { status: true, data: deleteResult };
         } catch (error) {
             return {status: false, message: error.message}
         }

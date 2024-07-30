@@ -20,5 +20,7 @@ alertRoute.patch('/updateAlert', alertController.updateAlert);
 // alertRoute.use('/send/alert', VerifyToken)
 alertRoute.post('/send/alert', alertController.sendAlert);
 
+alertRoute.post('/delete', alertController.deleteAlert);
+
 
 export default alertRoute;
