@@ -21,6 +21,12 @@ userRouter.patch(`/set/password/:id`, userController.setPassword)
 userRouter.post('/login/admin', adminController.adminLogin)
 userRouter.get('/admin/getUsers', userController.getUsers)
 userRouter.get('/getAlerts', adminController.getAlerts)
+
+userRouter.use('/vehicle', VerifyToken)
+userRouter.patch('/vehicle', userController.editVehicles)
+
+userRouter.use('/get/vehicle', VerifyToken)
+userRouter.get('/get/vehicle', userController.getVehiclesById)
 // userRouter.sendAlerts('/sendAlerts', adminController.sendAlerts)
 
 

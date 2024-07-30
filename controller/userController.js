@@ -69,4 +69,20 @@ export default class UserController {
             res.send(error.message);
         }
     }
+    editVehicles = async (req, res) => {
+        try {
+            const v_data = await this.UserService.vehicles(res.user, req.body);
+            res.send({status: true, data: v_data});    
+        } catch (error) {
+            res.send({status: false, message: error.message});
+        }
+    }
+    getVehiclesById = async (req, res) => {
+        try {
+            const v_data = await this.UserService.getVehicles(req.user);
+            res.send({status: true, data: v_data});    
+        } catch (error) {
+            res.send({status: false, message: error.message});
+        }
+    }
 }
