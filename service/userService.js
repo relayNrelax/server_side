@@ -80,7 +80,30 @@ export default class UserService {
         }
     }
 
+    saveVehicles = async (user, data) => {
+        try {
+            const save_v = await VehicleModel({
+                v_number: data.v_number,
+                v_u_id: user._id,
+            }).save();
+            return {status: true, message: save_v};
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
 
+    delete_vehicle = async (user, id) => {
+        try {
+            const result = await VehicleModel.deleteOne({_id: id, v_u_id: user._id});
+            if (result.deletedCount === 0) {
+                return {status: false, message: result.message}
+            }else{
+                return {status: true, message: 'Vehicle deleted Successfully' };
+            }
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
 
     updateUserEmail = async (data, userData) => {
         try {
@@ -191,11 +214,19 @@ export default class UserService {
             return {status: false, message: error.message};
         }
     }
-    vehicles = async (user, data) => {
+    edit_vehicle = async (user, data) => {
         try {
-            const userData = await UserModel.find({_id: user._id});
-            console.log(userData, data);
+            const result = await VehicleModel.updateOne(
+                { v_u_id: user._id, _id: data._id }, // Query conditions
+                { $set: { v_number: data.v_number } }   // Update operation
+            );
+            if (result.modifiedCount === 0) {
+                return {status: false, message: 'Vehicle not found'};
+            } else {
+                return {status: true, message: result.message};
+            }
         } catch (error) {
+            console.log(error.message);
             return {status: false, message: error.message};
         }
     }

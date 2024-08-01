@@ -8,6 +8,9 @@ const alertController = new AlertController();
 alertRoute.use('/create/alert', VerifyToken)
 alertRoute.post('/create/alert', alertController.createAlert);
 
+alertRoute.use('/add-alert', VerifyToken)
+alertRoute.post('/add-alert', alertController.addAlert);
+
 alertRoute.use('/get/alert', VerifyToken)
 alertRoute.get('/get/alert', alertController.getAllAlerts);
 

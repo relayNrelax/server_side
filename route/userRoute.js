@@ -28,7 +28,16 @@ userRouter.get('/getAlerts', adminController.getAlerts)
 
 //vehicle details
 userRouter.use('/vehicle', VerifyToken)
-userRouter.patch('/vehicle', userController.editVehicles)
+userRouter.post('/vehicle', userController.addVehicle)
+
+// edit
+userRouter.use('/edit-vehicle', VerifyToken)
+userRouter.patch('/edit-vehicle', userController.editVehicles)
+
+//delete
+userRouter.use('/delete-vehicle/:id', VerifyToken)
+userRouter.delete('/delete-vehicle/:id', userController.deleteVehicle)
+
 
 userRouter.use('/get/vehicle', VerifyToken)
 userRouter.get('/get/vehicle', userController.getVehiclesById)

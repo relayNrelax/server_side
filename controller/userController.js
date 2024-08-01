@@ -78,14 +78,34 @@ export default class UserController {
             res.send(error.message);
         }
     }
+
+    addVehicle = async (req, res) => {
+        try {
+            const addVehicle = await this.UserService.saveVehicles(req.user, req.body);
+            res.send(addVehicle);
+        } catch (error) {
+            res.send({status: false, message:error.message});
+        }
+    }
+
     editVehicles = async (req, res) => {
         try {
-            const v_data = await this.UserService.vehicles(res.user, req.body);
+            const v_data = await this.UserService.edit_vehicle(req.user, req.body);
             res.send({status: true, data: v_data});    
         } catch (error) {
             res.send({status: false, message: error.message});
         }
     }
+
+    deleteVehicle = async (req, res) => {
+        try {
+            const delete_v = await this.UserService.delete_vehicle(req.user, req.params.id);
+            res.send(delete_v);
+        } catch (error) {
+            res.send({status: false, message: error.message});
+        }
+    }
+
     getVehiclesById = async (req, res) => {
         try {
             const v_data = await this.UserService.getVehicles(req.user);
