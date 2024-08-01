@@ -70,6 +70,18 @@ export default class UserService {
         }
     }
 
+    loggedInUser = async (user) => {
+        try {
+            const userData = await UserModel.find({_id: user._id});
+            if(!userData) throw new Error (" cannot find user with id " + user._id + " in   the database");
+            return {status: true, message: userData}
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
+
+
+
     updateUserEmail = async (data, userData) => {
         try {
             const {email} = data;
@@ -183,7 +195,6 @@ export default class UserService {
         try {
             const userData = await UserModel.find({_id: user._id});
             console.log(userData, data);
-
         } catch (error) {
             return {status: false, message: error.message};
         }

@@ -16,6 +16,15 @@ export default class AlertController {
         }
     }
 
+    addAlert = async (req, res) => {
+        try {
+            const createAlert = await this.AlertService.saveAlert(req.user,req.body);
+            res.send({status: createAlert.status, createAlert});
+        } catch (error) {
+            res.send({status: false, error: error.message});
+        }
+    }
+
     getAllAlerts = async (req, res) => {
         try {
             const alerts = await this.AlertService.getAlert(req.user)

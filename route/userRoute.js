@@ -18,10 +18,15 @@ userRouter.patch('/update/phonenumber', userController.updatePhoneNumber)
 userRouter.patch('/reset/password/link', userController.forgetPassword)
 userRouter.patch(`/set/password/:id`, userController.setPassword)
 
+userRouter.get('/loggedUser', VerifyToken)
+userRouter.get('/loggedUser', userController.loggedInUser)
+
 userRouter.post('/login/admin', adminController.adminLogin)
 userRouter.get('/admin/getUsers', userController.getUsers)
 userRouter.get('/getAlerts', adminController.getAlerts)
 
+
+//vehicle details
 userRouter.use('/vehicle', VerifyToken)
 userRouter.patch('/vehicle', userController.editVehicles)
 
