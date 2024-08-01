@@ -32,6 +32,15 @@ export default class UserController {
         }
     }
 
+    loggedInUser = async (req, res) => {
+        try {
+            const userData = await this.UserService.loggedInUser(req.user);
+            res.send(userData);
+        } catch (error) {
+            res.send({statusbar: 'error', error: error.message});
+        }
+    }
+
     updateUserEmail = async (req, res) => {
         try {
             const updatedEmail = await this.UserService.updateUserEmail(req.body, req.user)

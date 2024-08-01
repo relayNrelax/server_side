@@ -1,5 +1,6 @@
 import AlertModel from "../models/alertModel.js";
 import UserModel from "../models/userModel.js";
+import VehicleModel from "../models/vehicleModel.js";
 import SendEmail from "../service/sendEmailService.js";
 
 export default class AlertService {
@@ -21,6 +22,28 @@ export default class AlertService {
             
         } catch (error) {
             return {status: false, message: error.message}
+        }
+    }
+
+    async saveAlert(user, data){
+        try {
+            const {id, alertType,alertDate, vehicleNumber, alertName} = data;
+            let v_data = await VehicleModel.find({'v_u_id': user._id, '_id': id});
+            const alert = {
+                a_name: alertName,
+                a_type: alertType,
+                a_status: 'Pending',
+                a_u_id: user._id,
+                a_v_id: id,
+                a_end_date: alertDate,
+                a_created_by: user.name
+            }
+
+            const createAlert = await AlertModel.create(alert)
+
+            return {status: true, v_data, input: data, create: createAlert};
+        } catch (error) {
+            return {status: false, message: error.message};
         }
     }
 
