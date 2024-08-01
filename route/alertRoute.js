@@ -11,11 +11,16 @@ alertRoute.post('/create/alert', alertController.createAlert);
 alertRoute.use('/get/alert', VerifyToken)
 alertRoute.get('/get/alert', alertController.getAllAlerts);
 
+alertRoute.use('/details', VerifyToken)
+alertRoute.get('/details', alertController.getDetails);
+
 alertRoute.use('/updateAlert', VerifyToken)
 alertRoute.patch('/updateAlert', alertController.updateAlert);
 
 // alertRoute.use('/send/alert', VerifyToken)
 alertRoute.post('/send/alert', alertController.sendAlert);
+
+alertRoute.post('/delete', alertController.deleteAlert);
 
 
 export default alertRoute;

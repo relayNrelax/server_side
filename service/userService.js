@@ -2,6 +2,7 @@ import bcrypt, {genSalt} from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import SendEmailService from './sendEmailService.js';
 import UserModel from "../models/userModel.js";
+import VehicleModel from '../models/vehicleModel.js';
 
 export default class UserService {
     constructor() {
@@ -26,12 +27,12 @@ export default class UserService {
                 phone_number: phoneNumber,
                 alternate_number: alternateNumber,
                 email: email,
-                v_number: v_number,
                 password: hashPassword
             })
-
             const saved_user = await newUser.save();
             if(!saved_user) throw new Error(`Something went wrong saving user please try again`);
+
+            this.saveUserVehicles(v_number, saved_user);
             
             const subject = "SignUp successfully";
             const text = `<p><strong>SignUp successfully on relayNrelax.com</strong></p>`
@@ -178,5 +179,47 @@ export default class UserService {
             return {status: false, message: error.message};
         }
     }
+    vehicles = async (user, data) => {
+        try {
+            const userData = await UserModel.find({_id: user._id});
+            console.log(userData, data);
+
+        } catch (error) {
+            return {status: false, message: error.message};
+        }
+    }
+
+    saveUserVehicles = async (v_number, saved_user) => {
+        if (v_number.length > 0) {
+            // Split the string by comma and trim each number
+            const vNumbers = v_number.split(',').map(v => v.trim());
+    
+            // Iterate over each vehicle number
+            for (const v_num of vNumbers) {
+                // Create a new instance of VehicleModel for each vehicle number
+                const vehicle = new VehicleModel({
+                    v_number: v_num,
+                    v_u_id: saved_user._id,
+                });
+    
+                try {
+                    // Save each vehicle to the database
+                    await vehicle.save();
+                } catch (err) {
+                    console.error(`Error saving vehicle ${v_num}: `, err);
+                }
+            }
+        }
+    }
+
+    getVehicles = async (user) => {
+        try {
+            const vehicles = await VehicleModel.find({v_u_id: user._id});
+            return vehicles
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    };
+    
     
 }

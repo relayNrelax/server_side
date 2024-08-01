@@ -10,7 +10,6 @@ const VerifyToken = async (req, res, next) => {
       token = authorization.split(" ")[1];
       const {userId} = jwt.verify(token, process.env.SECRET_KEY);
       req.user = await UserModel.findById(userId);
-      
       next();
     } else {
       res

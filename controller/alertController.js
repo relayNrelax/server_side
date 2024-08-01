@@ -36,7 +36,7 @@ export default class AlertController {
 
     deleteAlert = async (req, res) => {
         try {
-            const deleteAlert = await this.AlertService.deleteAlert(req.body, req.user)
+            const deleteAlert = await this.AlertService.deleteAlerts(req.body)
             res.send({status: deleteAlert.status, data: deleteAlert});
         } catch (error) {
             res.send({status: false, error: error.message});
@@ -51,4 +51,15 @@ export default class AlertController {
             res.send({status: false, error: error.message});
         }
     }
+
+    getDetails = async (req, res) => {
+        try {
+            const details = await this.AlertService.details(req.user)
+            res.send(details);
+        } catch (error) {
+            res.send({status: false, error: error.message});
+        }
+    }
+
+   
 }
