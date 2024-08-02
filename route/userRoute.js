@@ -43,6 +43,9 @@ userRouter.use('/get/vehicle', VerifyToken)
 userRouter.get('/get/vehicle', userController.getVehiclesById)
 // userRouter.sendAlerts('/sendAlerts', adminController.sendAlerts)
 
+//get all vehicles
+userRouter.get('/get-all-vehicles', userController.getAllVehicles);
+
 
 
 export default userRouter

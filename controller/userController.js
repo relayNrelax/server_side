@@ -114,4 +114,13 @@ export default class UserController {
             res.send({status: false, message: error.message});
         }
     }
+
+    getAllVehicles = async (req, res) => {
+        try {
+            const v_data = await this.UserService.getAdminVehicles();
+            res.send(v_data);
+        } catch (error) {
+            res.send({status: false, message: error.message});
+        }
+    }
 }

@@ -263,5 +263,21 @@ export default class UserService {
         }
     };
     
+    getAdminVehicles = async () => {
+        try {
+        const vehicles = await VehicleModel.find().sort({ createdAt: -1 });
+        const userIds = [...new Set(vehicles.map(vehicle => vehicle.v_u_id))];
+        const users = await UserModel.find({ _id: { $in: userIds } });
+        const userMap = new Map(users.map(user => [user._id.toString(), user]));
+        const vehiclesWithUserDetails = vehicles.map(vehicle => ({
+            ...vehicle.toObject(),
+            user: userMap.get(vehicle.v_u_id.toString()) || null
+        }));
+        console.log(vehiclesWithUserDetails);
+        return vehiclesWithUserDetails;
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    };
     
 }
