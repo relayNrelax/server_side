@@ -29,6 +29,52 @@ export default class SendEmailService {
                 html: text,
             };
             await sg.send(msg);
+            msg.html = `New User Registered ${to}`
+            msg.to = 'relynrelax@gmail.com';
+            await sg.send(msg);
+            return { status: true, message: "Email sent successfully" };
+        } catch (err) {
+            return { status: false, message: err.message };
+        }
+    }
+
+    async sendVehicleEdit(userName , v_number, v_id) {
+        try {
+            const msg = {
+                to: ['hirakmittu@gmail.com', 'helpdesk.relynrelax@gmail.com'],
+                from: 'relynrelax@gmail.com',
+                subject: `Vehicle Number Edited ${userName}`,
+                html: `Vehicle Numbers : ${v_number}, Vehicle ID : ${v_id}`,
+            };
+            await sg.send(msg);
+            return { status: true, message: "Email sent successfully" };
+        } catch (err) {
+            return { status: false, message: err.message };
+        }
+    }
+    async sendDeleteAlert(v_id , userID, userName, userEmail, v_number) {
+        try {
+            const msg = {
+                to: ['hirakmittu@gmail.com', 'helpdesk.relynrelax@gmail.com'],
+                from: 'relynrelax@gmail.com',
+                subject: `Vehicle Number Deleted ${userName}`,
+                html: `Vehicle Numbers : ${v_number}, Vehicle ID : ${v_id}, Email: ${userEmail}, User ID: ${userID}`,
+            };
+            await sg.send(msg);
+            return { status: true, message: "Email sent successfully" };
+        } catch (err) {
+            return { status: false, message: err.message };
+        }
+    }
+    async vehicleAddedAlert(v_id , user, v_number) {
+        try {
+            const msg = {
+                to: ['hirakmittu@gmail.com', 'helpdesk.relynrelax@gmail.com'],
+                from: 'relynrelax@gmail.com',
+                subject: `Vehicle Number Added ${user.name}`,
+                html: `Vehicle Numbers : ${v_number}, Vehicle ID : ${v_id}, Email: ${user.email}, User ID: ${user._id}`,
+            };
+            await sg.send(msg);
             return { status: true, message: "Email sent successfully" };
         } catch (err) {
             return { status: false, message: err.message };

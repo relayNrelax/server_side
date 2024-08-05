@@ -84,10 +84,16 @@ export default class UserService {
 
     saveVehicles = async (user, data) => {
         try {
+            const get_vehicle = await VehicleModel.findOne({v_number: data.v_number});
+            if(get_vehicle){
+                const get_user = await UserModel.findById({_id: get_vehicle.v_u_id});
+                return {status: false, message: `Vehicle ${data.v_number} already registered from this User ${get_user.name}.`}
+            } 
             const save_v = await VehicleModel({
                 v_number: data.v_number,
                 v_u_id: user._id,
             }).save();
+            this.SendEmailService.vehicleAddedAlert(save_v._id, user, data.v_number);
             return {status: true, message: save_v};
         } catch (error) {
             return {status: false, message: error.message}
@@ -96,10 +102,12 @@ export default class UserService {
 
     delete_vehicle = async (user, id) => {
         try {
+            const v_details = await VehicleModel.findOne({_id: id});
             const result = await VehicleModel.deleteOne({_id: id, v_u_id: user._id});
             if (result.deletedCount === 0) {
                 return {status: false, message: result.message}
             }else{
+                const send_delete_alert = this.SendEmailService.sendDeleteAlert(id, user._id, user.name, user.email, v_details.v_number);
                 return {status: true, message: 'Vehicle deleted Successfully' };
             }
         } catch (error) {
@@ -225,6 +233,7 @@ export default class UserService {
             if (result.modifiedCount === 0) {
                 return {status: false, message: 'Vehicle not found'};
             } else {
+                const sendAlert = this.SendEmailService.sendVehicleEdit(user.name, data.v_number, data._id);
                 return {status: true, message: result.message};
             }
         } catch (error) {
