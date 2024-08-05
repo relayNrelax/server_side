@@ -7,39 +7,31 @@ import UserModel from "../models/userModel.js";
 import AlertModel from '../models/alertModel.js';
 import { response } from "express";
 import ElasticEmail from "@elasticemail/elasticemail-client";
-
-sg.setApiKey(process.env.SG_API_KEY);
 export default class SendEmailService {
     constructor() {
-       connectDB()
-            .then(() => {
-                corn.schedule("0 0 * * *", async () => {
-                    try {
-                        await this.sendEmailReminders();
-                    } catch (error) {
-                        return {status: false, message: error.message}
-                    }
-                })
-            })
-            .catch((error) => {
-                return {status: false, message: error.message}
-            })
+        sg.setApiKey(process.env.SG_API_KEY);
     }
 
-    sendEmail = async (to, subject, text) => {
+    userCreatedAlert = async ( data ) => {
         try {
-            
+            console.log(data);
+        } catch (error) {
+            return {status: false, message: error.message}
+        }
+    }
+
+    async sendEmail(to, subject, text) {
+        try {
             const msg = {
                 to: to,
-                from: 'bishaldeb282@gmail.com',
+                from: 'relynrelax@gmail.com',
                 subject: subject,
                 html: text,
-            }
-
-            this.sg.send(msg).then(() => {return {status: true, message: "Email sent successfully"}}).catch((err) => {return {status: false, message: err.message}});
-
-        } catch (error) {
-            return error.message
+            };
+            await sg.send(msg);
+            return { status: true, message: "Email sent successfully" };
+        } catch (err) {
+            return { status: false, message: err.message };
         }
     }
 

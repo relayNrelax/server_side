@@ -22,6 +22,9 @@ export default class UserService {
             const salt = await bcrypt.genSalt(10)
             const hashPassword = await bcrypt.hash(password, salt);
 
+            const phone_exist = await UserModel.findOne({phone_number: phoneNumber});
+            if(phone_exist) return {status: false, message: `Phone number ${phoneNumber} already exists. Please Use different phone number`};
+
             const newUser = new UserModel({
                 name: userName,
                 phone_number: phoneNumber,
@@ -32,8 +35,7 @@ export default class UserService {
             const saved_user = await newUser.save();
             if(!saved_user) throw new Error(`Something went wrong saving user please try again`);
 
-            this.saveUserVehicles(v_number, saved_user);
-            
+            const save_v = await this.saveUserVehicles(v_number, saved_user);
             const subject = "SignUp successfully";
             const text = `<p><strong>SignUp successfully on relayNrelax.com</strong></p>`
 
@@ -232,25 +234,38 @@ export default class UserService {
     }
 
     saveUserVehicles = async (v_number, saved_user) => {
-        if (v_number.length > 0) {
-            // Split the string by comma and trim each number
-            const vNumbers = v_number.split(',').map(v => v.trim());
-    
-            // Iterate over each vehicle number
-            for (const v_num of vNumbers) {
-                // Create a new instance of VehicleModel for each vehicle number
-                const vehicle = new VehicleModel({
-                    v_number: v_num,
-                    v_u_id: saved_user._id,
-                });
-    
-                try {
-                    // Save each vehicle to the database
-                    await vehicle.save();
-                } catch (err) {
-                    console.error(`Error saving vehicle ${v_num}: `, err);
+        const result = [];
+        try {
+            if (v_number.length > 0) {
+                const vNumbers = v_number.split(',').map(v => v.trim());
+                for (const v_num of vNumbers) {
+                    const vehicle = new VehicleModel({
+                        v_number: v_num,
+                        v_u_id: saved_user._id,
+                    });
+        
+                    try {
+                        const save_v = await vehicle.save();
+                        !save_v ? result.push({status: false, message: "Failed to save vehicle number"}) : result.push({status: true, message: "Vehicle number saved successfully."}) 
+                    } catch (err) {
+                        result.push({status: false, message: err.message});
+                    }
                 }
             }
+
+            if(result.length===0){
+                return {status: false, message: "No Vehicle To save"};
+            }
+
+            const allSaved = result.every(result => result.status === true);
+            if(allSaved){
+                return {status: true, message: 'All vehicle saved successfully', res: result};
+            }else{
+                return {status: false, message: 'Failed ToProcess all data.', res: result};
+            }
+            
+        } catch (error) {
+            return {status: false, message: error.message}
         }
     }
 
