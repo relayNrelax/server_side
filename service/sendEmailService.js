@@ -208,51 +208,66 @@ export default class SendEmailService {
         }
     }
 
-    resetLink = (email, id) => {
-        return new Promise((resolve, reject) => {
-            try {
-                let defaultClient = ElasticEmail.ApiClient.instance;
-                let apiKey = defaultClient.authentications['apikey'];
-                apiKey.apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
+    resetLink = async(email, id) => {
+        // return new Promise((resolve, reject) => {
+        //     try {
+        //         let defaultClient = ElasticEmail.ApiClient.instance;
+        //         let apiKey = defaultClient.authentications['apikey'];
+        //         apiKey.apiKey = '6E116318C3FD015B88463D119A995C240359C569D06411D3BFF3B81048A939AB2A89B85F1117881B00DF616466C355CD'
                 
-                const link = `https://relynrelax.com/new/password/${id}`
-                console.log(link)
+        //         const link = `https://relynrelax.com/new/password/${id}`
+        //         console.log(link)
 
-                let api = new ElasticEmail.EmailsApi()
-                let email_data = ElasticEmail.EmailMessageData.constructFromObject(
-                    {
-                        Recipients: [
-                            new ElasticEmail.EmailRecipient(email)
-                        ],
-                        Content: {
-                            Body: [
-                                ElasticEmail.BodyPart.constructFromObject({
-                                    ContentType: "HTML",
-                                    Content: `<p>Please click on the below link which will take you to password</p><br><br>
+        //         let api = new ElasticEmail.EmailsApi()
+        //         let email_data = ElasticEmail.EmailMessageData.constructFromObject(
+        //             {
+        //                 Recipients: [
+        //                     new ElasticEmail.EmailRecipient(email)
+        //                 ],
+        //                 Content: {
+        //                     Body: [
+        //                         ElasticEmail.BodyPart.constructFromObject({
+        //                             ContentType: "HTML",
+        //                             Content: `<p>Please click on the below link which will take you to password</p><br><br>
+        //                                     <p><a href="${link}">https://relynrelax.com/new/password</a></p>`
+
+        //                         })
+        //                     ],
+        //                     Subject: 'RelyNrelax Password reset Link',
+        //                     From: 'bishal@letscalendar.com'
+        //                 }
+        //             }
+        //         )
+    
+        //         var callback = (err, data, response) => {
+        //             if(err){
+        //                 reject({ status: false, message: err });
+        //             } else {
+        //                 resolve({ status: true, message: 'Password reset link sent successfully' });
+        //             }
+        //         }
+    
+        //         api.emailsPost(email_data, callback);
+
+        //     } catch (error) {
+        //         reject({ status: false, message: error.message });
+        //     }
+        // });
+        const subject = "RelyNrelax Password reset Link";
+        try {
+            const link = `https://relynrelax.com/new/password/${id}`;
+            const msg = {
+                to: email,
+                from: 'relynrelax@gmail.com',
+                subject: subject,
+                html: `<p>Please click on the below link which will take you to password</p><br><br>
                                             <p><a href="${link}">https://relynrelax.com/new/password</a></p>`
-
-                                })
-                            ],
-                            Subject: 'RelyNrelax Password reset Link',
-                            From: 'bishal@letscalendar.com'
-                        }
-                    }
-                )
-    
-                var callback = (err, data, response) => {
-                    if(err){
-                        reject({ status: false, message: err });
-                    } else {
-                        resolve({ status: true, message: 'Password reset link sent successfully' });
-                    }
-                }
-    
-                api.emailsPost(email_data, callback);
-
-            } catch (error) {
-                reject({ status: false, message: error.message });
             }
-        });
+            await sg.send(msg);
+            return { status: true, message: "Email sent successfully" };
+        } catch (error) {
+            return { status: false, message: error.message}
+        }
     }
 
 
