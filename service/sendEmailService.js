@@ -255,13 +255,13 @@ export default class SendEmailService {
         // });
         const subject = "RelyNrelax Password reset Link";
         try {
-            const link = `https://relynrelax.com/new/password/${id}`;
+            const link = `https://client.relynrelax.com/new/password/${id}`;
             const msg = {
                 to: email,
                 from: 'relynrelax@gmail.com',
                 subject: subject,
                 html: `<p>Please click on the below link which will take you to password</p><br><br>
-                                            <p><a href="${link}">https://client.relynrelax.com/new/password</a></p>`
+                                            <p><a href="${link}">https://relynrelax.com/new/password</a></p>`
             }
             await sg.send(msg);
             return { status: true, message: "Email sent successfully" };
