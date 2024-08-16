@@ -40,7 +40,7 @@ export default class AdminController {
                         _id: alert._id,
                         a_name: alert.a_name,
                         a_type: alert.a_type,
-                        a_v_number: alert.a_v_number,
+                        a_v_id: alert.a_v_id,
                         a_status: alert.a_status,
                         a_u_id: alert.a_u_id,
                         a_end_date: alert.a_end_date,
