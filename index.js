@@ -18,7 +18,7 @@ app.use(cors({
     credentials: true,
 }));
 
-const port = 5001 || 5282;
+const port = 5001;
 
 (async () => {
     try {
